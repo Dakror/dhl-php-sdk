@@ -1,7 +1,7 @@
 <?php
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 13.07.2017
  * Time: 21:17
  *
@@ -29,10 +29,12 @@ require_once('PackStation.php');
 require_once('BankData.php');
 require_once('BusinessShipment.php');
 require_once('Credentials.php');
+require_once('Deprecated.php');
 require_once('ExportDocPosition.php');
 require_once('ExportDocument.php');
 require_once('IdentCheck.php');
 require_once('LabelData.php');
+require_once('LabelFormat.php');
 require_once('Product.php');
 require_once('ProductInfo.php');
 require_once('Response.php');

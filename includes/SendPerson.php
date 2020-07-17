@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 26.01.2017
  * Time: 18:17
- * Update: 17.07.2018
- * Version: 0.0.4
  *
  * Notes: Contains SendPerson Class
  */
@@ -35,6 +33,7 @@ abstract class SendPerson extends Address {
 	 * Name of SendPerson (Part 2)
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 50
 	 *
@@ -46,6 +45,7 @@ abstract class SendPerson extends Address {
 	 * Name of SendPerson (Part 3)
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 50
 	 *
@@ -57,6 +57,7 @@ abstract class SendPerson extends Address {
 	 * Phone-Number of the SendPerson
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 20
 	 *
@@ -68,8 +69,10 @@ abstract class SendPerson extends Address {
 	 * E-Mail of the SendPerson
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 70
+	 * Max-Len: 50 (since 3.0)
 	 *
 	 * @var string|null $email - E-Mail-Address | null for none
 	 */
@@ -79,6 +82,7 @@ abstract class SendPerson extends Address {
 	 * Contact Person of the SendPerson (Mostly used in Companies)
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 50
 	 *
@@ -207,25 +211,52 @@ abstract class SendPerson extends Address {
 		$this->contactPerson = $contactPerson;
 	}
 
+	/**
+	 * Returns the Communication Class
+	 *
+	 * @return StdClass - Communication Class
+	 * @since 2.0
+	 */
+	protected function getCommunicationClass_v2() {
+		$class = new StdClass;
+
+		if($this->getPhone() !== null)
+			$class->phone = $this->getPhone();
+		if($this->getEmail() !== null)
+			$class->email = $this->getEmail();
+		if($this->getContactPerson() !== null)
+			$class->contactPerson = $this->getContactPerson();
+
+		// Just set a Contact-Person (The name) if nothing else if given since this is a required element but every element is optional...
+		if($this->getPhone() === null && $this->getEmail() === null && $this->getContactPerson() === null)
+			$class->contactPerson = $this->getName();
+
+		return $class;
+	}
 
 	/**
-	 * Returns a Class for the DHL-SendPerson
+	 * Returns the Communication Class
 	 *
-	 * @return StdClass - DHL-SendPerson-class
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
+	 * @return StdClass - Communication Class
+	 * @since 3.0
 	 */
-	public function getClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		return new StdClass;
+	protected function getCommunicationClass_v3() {
+		return $this->getCommunicationClass_v2();
 	}
 
 	/**
 	 * Returns a Class for the DHL-SendPerson
 	 *
 	 * @return StdClass - DHL-SendPerson-class
+	 * @since 2.0
 	 */
 	abstract public function getClass_v2();
+
+	/**
+	 * Returns a Class for the DHL-SendPerson
+	 *
+	 * @return StdClass - DHL-SendPerson-class
+	 * @since 3.0
+	 */
+	abstract public function getClass_v3();
 }

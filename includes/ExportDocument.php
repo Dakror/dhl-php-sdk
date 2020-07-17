@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 26.01.2017
  * Time: 21:05
- * Update: 02.09.2018
- * Version: 0.0.7
  *
  * Notes: Contains the ExportDocument Class
  */
@@ -43,6 +41,7 @@ class ExportDocument {
 	 * In case invoice has a number, client app can provide it in this field.
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -71,6 +70,7 @@ class ExportDocument {
 	 * Description for Export-Type (especially needed if Export-Type is OTHER)
 	 *
 	 * Note: Optional|Required if "EXPORT_TYPE" is OTHER
+	 *
 	 * Min-Len: 1
 	 * Max-Len: 256
 	 *
@@ -82,6 +82,7 @@ class ExportDocument {
 	 * Element provides terms of trades
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: 3
 	 * Max-Len: 3
 	 *
@@ -100,6 +101,7 @@ class ExportDocument {
 	 * Place of committal
 	 *
 	 * Note: Required
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -120,6 +122,7 @@ class ExportDocument {
 	 * Permit-Number
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 10
 	 *
@@ -132,6 +135,7 @@ class ExportDocument {
 	 * Attestation number
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -269,7 +273,7 @@ class ExportDocument {
 	 *
 	 * @return float - Additional Fee
 	 */
-	public function getAdditionalFee() {
+	public function getAdditionalFee(): float {
 		return $this->additionalFee;
 	}
 
@@ -278,7 +282,7 @@ class ExportDocument {
 	 *
 	 * @param float $additionalFee - Additional Fee
 	 */
-	public function setAdditionalFee($additionalFee) {
+	public function setAdditionalFee(float $additionalFee): void {
 		$this->additionalFee = $additionalFee;
 	}
 
@@ -378,23 +382,8 @@ class ExportDocument {
 	 * Returns a Class for Export-Document
 	 *
 	 * @return StdClass - DHL-ExportDocument-Class
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function getExportDocumentClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		$class = new StdClass;
-
-		return $class;
-	}
-
-	/**
-	 * Returns a Class for Export-Document
-	 *
-	 * @return StdClass - DHL-ExportDocument-Class
 	 * @throws Exception - Invalid Data-Exception
+	 * @since 2.0
 	 */
 	public function getExportDocumentClass_v2() {
 		$class = new StdClass;
@@ -442,5 +431,16 @@ class ExportDocument {
 		}
 
 		return $class;
+	}
+
+	/**
+	 * Returns a Class for Export-Document
+	 *
+	 * @return StdClass - DHL-ExportDocument-Class
+	 * @throws Exception - Invalid Data-Exception
+	 * @since 3.0
+	 */
+	public function getExportDocumentClass_v3() {
+		return $this->getExportDocumentClass_v2();
 	}
 }

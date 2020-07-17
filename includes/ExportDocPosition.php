@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 10.04.2017
  * Time: 12:48
- * Update: 06.08.2018
- * Version: 0.0.5
  *
  * Notes: Contains the ExportDocPosition class
  */
@@ -225,22 +223,7 @@ class ExportDocPosition {
 	 * Returns a Class for ExportDocPosition
 	 *
 	 * @return StdClass - DHL-ExportDocPosition-Class
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	protected function getExportDocPositionClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		$class = new StdClass;
-
-		return $class;
-	}
-
-	/**
-	 * Returns a Class for ExportDocPosition
-	 *
-	 * @return StdClass - DHL-ExportDocPosition-Class
+	 * @since 2.0
 	 */
 	public function getExportDocPositionClass_v2() {
 		$class = new StdClass;
@@ -253,5 +236,15 @@ class ExportDocPosition {
 		$class->customsValue = $this->getCustomsValue();
 
 		return $class;
+	}
+
+	/**
+	 * Returns a Class for ExportDocPosition
+	 *
+	 * @return StdClass - DHL-ExportDocPosition-Class
+	 * @since 3.0
+	 */
+	public function getExportDocPositionClass_v3() {
+		return $this->getExportDocPositionClass_v2();
 	}
 }

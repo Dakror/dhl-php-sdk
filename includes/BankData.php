@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 26.01.2017
  * Time: 20:14
- * Update: 14.07.2018
- * Version: 0.0.4
  *
  * Notes: Contains BankData Class
  */
@@ -55,6 +53,7 @@ class BankData {
 	 * Purpose of bank information
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -66,6 +65,7 @@ class BankData {
 	 * Purpose of more bank information
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -77,6 +77,7 @@ class BankData {
 	 * Bank-Information-Code (BankCCL) of bank account.
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 11
 	 *
@@ -88,6 +89,7 @@ class BankData {
 	 * Account reference to customer profile
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -242,23 +244,10 @@ class BankData {
 	}
 
 	/**
-	 * Returns a DHL-Bank-Class for API v1
-	 *
-	 * @return stdClass - DHL-Bank-Class
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function getBankClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		return new StdClass;
-	}
-
-	/**
 	 * Returns a DHL-Bank-Class for API v2
 	 *
 	 * @return StdClass - DHL-Bank-Class
+	 * @since 2.0
 	 */
 	public function getBankClass_v2() {
 		$class = new StdClass;
@@ -276,5 +265,15 @@ class BankData {
 			$class->accountreference = $this->getAccountReference();
 
 		return $class;
+	}
+
+	/**
+	 * Returns a DHL-Bank-Class for API v3
+	 *
+	 * @return StdClass - DHL-Bank-Class
+	 * @since 3.0
+	 */
+	public function getBankClass_v3() {
+		return $this->getBankClass_v2();
 	}
 }

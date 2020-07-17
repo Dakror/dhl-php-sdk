@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 12.08.2018
  * Time: 18:02
- * Update: -
- * Version: 0.0.1
  *
  * Notes: Contains the ShipmentOrder Class
  */
@@ -42,9 +40,11 @@ class ShipmentOrder {
 	/**
 	 * Contains the Sender-Object
 	 *
-	 * @var Sender $sender - Sender Object
+	 * Note: Optional IF ShipperReference is given (Since 3.0)
+	 *
+	 * @var Sender|null $sender - Sender Object or null if use sender reference
 	 */
-	private $sender;
+	private $sender = null;
 
 	/**
 	 * Contains the Receiver-Object
@@ -72,6 +72,16 @@ class ShipmentOrder {
 	private $exportDocument = null;
 
 	/**
+	 * Contains a reference to the Shipper data configured in GKP
+	 *
+	 * Note: Optional but required if sender is not given
+	 *
+	 * @var string|null $shipperReference - Shipper Reference or null for none
+	 * @since 3.0
+	 */
+	private $shipperReference = null;
+
+	/**
 	 * Contains if the label will be only be printable, if the receiver address is valid.
 	 *
 	 * Note: Optional
@@ -87,10 +97,19 @@ class ShipmentOrder {
 	 * Values:
 	 * BusinessShipment::RESPONSE_TYPE_URL -> Url
 	 * BusinessShipment::RESPONSE_TYPE_B64 -> Base64
+	 * BusinessShipment::RESPONSE_TYPE_XML -> XML (since 3.0)
 	 *
 	 * @var string|null $labelResponseType - Label-Response-Type (Can use class constance's) (null uses default)
 	 */
 	private $labelResponseType = null;
+
+	/**
+	 * Contains the Label-Format
+	 *
+	 * @var LabelFormat|null $labelFormat Label-Format (null uses default)
+	 * @since 3.0
+	 */
+	private $labelFormat = null;
 
 	/**
 	 * Clears Memory
@@ -102,8 +121,10 @@ class ShipmentOrder {
 		unset($this->receiver);
 		unset($this->returnReceiver);
 		unset($this->exportDocument);
+		unset($this->shipperReference);
 		unset($this->printOnlyIfReceiverIsValid);
 		unset($this->labelResponseType);
+		unset($this->labelFormat);
 	}
 
 	/**
@@ -145,7 +166,7 @@ class ShipmentOrder {
 	/**
 	 * Get the Sender-Object
 	 *
-	 * @return Sender - Sender-Object
+	 * @return Sender|null - Sender-Object or null if use sender reference
 	 */
 	public function getSender() {
 		return $this->sender;
@@ -154,7 +175,7 @@ class ShipmentOrder {
 	/**
 	 * Set the Sender-Object
 	 *
-	 * @param Sender $sender - Sender-Object
+	 * @param Sender|null $sender - Sender-Object or null if use sender reference
 	 */
 	public function setSender($sender) {
 		$this->sender = $sender;
@@ -219,6 +240,26 @@ class ShipmentOrder {
 	}
 
 	/**
+	 * Get the Shipper-Reference
+	 *
+	 * @return string|null - Shipper-Reference or null for none
+	 * @since 3.0
+	 */
+	public function getShipperReference(): ?string {
+		return $this->shipperReference;
+	}
+
+	/**
+	 * Set the Shipper-Reference
+	 *
+	 * @param string|null $shipperReference - Shipper-Reference or null for none
+	 * @since 3.0
+	 */
+	public function setShipperReference(?string $shipperReference): void {
+		$this->shipperReference = $shipperReference;
+	}
+
+	/**
 	 * Get if the label should only printed if the Receiver-Address is valid
 	 *
 	 * @return bool|null - Should the label only printed on a valid Address | null means DHL-Default
@@ -257,9 +298,30 @@ class ShipmentOrder {
 	}
 
 	/**
+	 * Get the Label-Format
+	 *
+	 * @return LabelFormat|null - Label-Format | null means DHL-Default
+	 * @since 3.0
+	 */
+	public function getLabelFormat(): ?LabelFormat {
+		return $this->labelFormat;
+	}
+
+	/**
+	 * Sets the Label-Format
+	 *
+	 * @param LabelFormat|null $labelFormat - Label-Format | null uses DHL-Default
+	 * @since 3.0
+	 */
+	public function setLabelFormat(?LabelFormat $labelFormat): void {
+		$this->labelFormat = $labelFormat;
+	}
+
+	/**
 	 * Returns an DHL-Class of this Object for DHL-Shipment Order
 	 *
 	 * @return stdClass - DHL-ShipmentOrder-Class
+	 * @since 2.0
 	 */
 	public function getShipmentOrderClass_v2() {
 		$class = new StdClass;
@@ -293,8 +355,60 @@ class ShipmentOrder {
 			$class->PrintOnlyIfCodeable = new StdClass;
 			$class->PrintOnlyIfCodeable->active = (int) $this->getPrintOnlyIfReceiverIsValid();
 		}
+		if($this->getLabelResponseType() !== null && in_array($this->getLabelResponseType(), array(BusinessShipment::RESPONSE_TYPE_URL, BusinessShipment::RESPONSE_TYPE_B64)))
+			$class->labelResponseType = $this->getLabelResponseType();
+
+		return $class;
+	}
+
+	/**
+	 * Returns an DHL-Class of this Object for DHL-Shipment Order
+	 *
+	 * @return stdClass - DHL-ShipmentOrder-Class
+	 * @since 3.0
+	 */
+	public function getShipmentOrderClass_v3() {
+		$class = new StdClass;
+		$class->sequenceNumber = $this->getSequenceNumber();
+
+		// Shipment
+		$class->Shipment = new StdClass;
+		$class->Shipment->ShipmentDetails = $this->getShipmentDetails()->getShipmentDetailsClass_v3();
+
+		// Receiver
+		$class->Shipment->Receiver = $this->getReceiver()->getClass_v3();
+
+		// Return-Receiver
+		if($this->getReturnReceiver() !== null)
+			$class->Shipment->ReturnReceiver = $this->getReturnReceiver()->getClass_v3();
+
+		// Export-Document
+		if($this->getExportDocument() !== null) {
+			try {
+				$class->Shipment->ExportDocument = $this->getExportDocument()->getExportDocumentClass_v3();
+			} catch(Exception $e) {
+				trigger_error('[DHL-PHP-SDK]: Exception in method ' . __METHOD__ . ':' . $e->getMessage(), E_USER_WARNING);
+			}
+		}
+
+		// Shipper
+		if($this->getSender() !== null)
+			$class->Shipment->Shipper = $this->getSender()->getClass_v3();
+		else
+			$class->Shipment->ShipperReference = $this->getShipperReference();
+
+		// Other Settings
+		if($this->getPrintOnlyIfReceiverIsValid() !== null) {
+			$class->PrintOnlyIfCodeable = new StdClass;
+			$class->PrintOnlyIfCodeable->active = (int) $this->getPrintOnlyIfReceiverIsValid();
+		}
+
+		// Fixme: It doesnt seem to affect the single format, maybe it was just a bug
 		if($this->getLabelResponseType() !== null)
 			$class->labelResponseType = $this->getLabelResponseType();
+
+		if($this->getLabelFormat() !== null)
+			$class = $this->getLabelFormat()->addLabelFormatClass_v3($class);
 
 		return $class;
 	}

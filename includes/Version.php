@@ -4,7 +4,7 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 26.01.2017
  * Time: 15:04
  *
@@ -123,7 +123,7 @@ abstract class Version {
 	 *
 	 * @return StdClass - Version DHL-Class
 	 */
-	protected function getVersionClass() {
+	public function getVersionClass() {
 		$class = new StdClass;
 
 		$class->majorRelease = $this->getMayor();

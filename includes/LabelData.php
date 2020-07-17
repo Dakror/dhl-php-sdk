@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 02.09.2018
  * Time: 13:13
- * Update: 05.09.2018
- * Version: 1.0.0
  *
  * Notes: Contains the LabelData Class
  */
@@ -103,11 +101,13 @@ class LabelData extends Version implements LabelResponse {
 		if($labelData !== null) {
 			switch($this->getMayor()) {
 				case 1:
-					trigger_error('[DHL-PHP-SDK]: Called Version 1 Method ' .__CLASS__ . '->' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
 					break;
 				case 2:
-				default:
 					$this->loadLabelData_v2($labelData);
+					break;
+				case 3:
+				default:
+					$this->loadLabelData_v3($labelData);
 			}
 		}
 	}
@@ -319,6 +319,7 @@ class LabelData extends Version implements LabelResponse {
 	 * Set all Values of the LabelResponse to this Object
 	 *
 	 * @param Object $response - LabelData-Response
+	 * @since 2.0
 	 */
 	private function loadLabelData_v2($response) {
 		$labelResponse = $response;
@@ -384,5 +385,15 @@ class LabelData extends Version implements LabelResponse {
 			$this->setCodLabel($labelResponse->codLabelUrl);
 		else if(isset($labelResponse->codLabelData))
 			$this->setCodLabel($labelResponse->codLabelData);
+	}
+
+	/**
+	 * Set all Values of the LabelResponse to this Object
+	 *
+	 * @param Object $response - LabelData-Response
+	 * @since 3.0
+	 */
+	private function loadLabelData_v3($response) {
+		$this->loadLabelData_v2($response);
 	}
 }

@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 17.03.2017
  * Time: 12:09
- * Update: 17.07.2018
- * Version: 1.0.5
  *
  * Notes: Contains the PackStation class
  */
@@ -90,18 +88,13 @@ class PackStation extends Receiver {
 	 * Returns a Class for the DHL-SendPerson
 	 *
 	 * @return StdClass - DHL-SendPerson-class
+	 * @since 2.0
 	 */
 	public function getClass_v2() {
 		$class = new StdClass;
 		$class->name1 = $this->getName();
 
-		$class->Communication = new StdClass;
-		if($this->getPhone() !== null)
-			$class->Communication->phone = $this->getPhone();
-		if($this->getEmail() !== null)
-			$class->Communication->email = $this->getEmail();
-		if($this->getContactPerson() !== null)
-			$class->Communication->contactPerson = $this->getContactPerson();
+		$class->Communication = $this->getCommunicationClass_v2();
 
 		$class->Packstation = new StdClass;
 		$class->Packstation->postNumber = $this->getPostNumber();
@@ -109,17 +102,34 @@ class PackStation extends Receiver {
 		$class->Packstation->zip = $this->getZip();
 		$class->Packstation->city = $this->getLocation();
 
-		if($this->getCountryISOCode() !== null) {
-			$class->Packstation->Origin = new StdClass;
+		if($this->getCountryISOCode() !== null)
+			$class->Packstation->Origin = $this->getOriginClass_v2();
 
-			if($this->getCountry() !== null)
-				$class->Packstation->Origin->country = $this->getCountry();
+		return $class;
+	}
 
-			$class->Packstation->Origin->countryISOCode = $this->getCountryISOCode();
+	/**
+	 * Returns a Class for the DHL-SendPerson
+	 *
+	 * @return StdClass - DHL-SendPerson-class
+	 * @since 3.0
+	 */
+	public function getClass_v3() {
+		$class = new StdClass;
+		$class->name1 = $this->getName();
 
-			if($this->getState() !== null)
-				$class->Packstation->Origin->state = $this->getState();
-		}
+		$class->Communication = $this->getCommunicationClass_v3();
+
+		$class->Packstation = new StdClass;
+		$class->Packstation->postNumber = $this->getPostNumber();
+		$class->Packstation->packstationNumber = $this->getPackStationNumber();
+		$class->Packstation->zip = $this->getZip();
+		$class->Packstation->city = $this->getLocation();
+		if($this->getProvince() !== null)
+			$class->Packstation->province = $this->getProvince();
+
+		if($this->getCountryISOCode() !== null)
+			$class->Packstation->Origin = $this->getOriginClass_v3();
 
 		return $class;
 	}

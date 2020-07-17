@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 18.11.2016
  * Time: 13:07
- * Update: 05.08.2018
- * Version: 0.1.2
  *
  * Notes: Details for a Shipment (Like size/Weight etc)
  */
@@ -21,20 +19,6 @@ use stdClass;
  * @package Petschko\DHL
  */
 class ShipmentDetails {
-	/**
-	 * DHL-Package-Type "Palette"
-	 *
-	 * @deprecated - DHL-API-Version 1 Constant
-	 */
-	const PALETTE = 'PL';
-
-	/**
-	 * DHL-Package-Type "Package"
-	 *
-	 * @deprecated - DHL-API-Version 1 Constant
-	 */
-	const PACKAGE = 'PK';
-
 	/**
 	 * Product-Type Values:
 	 *
@@ -123,6 +107,19 @@ class ShipmentDetails {
 	private $shipmentDate = null;
 
 	/**
+	 * Name of a cost center
+	 *
+	 * Note: Optional
+	 *
+	 * Min-Len: -
+	 * Max-Len: 50
+	 *
+	 * @var null|string $costCentre - Name of a Cost-Center or null for none
+	 * @since 3.0
+	 */
+	private $costCentre = null;
+
+	/**
 	 * Contains the Return-Account-Number (EKP)
 	 *
 	 * Note: Optional
@@ -190,21 +187,6 @@ class ShipmentDetails {
 	private $service = null;
 
 	/**
-	 * Type of the Package
-	 *
-	 * Note: Optional
-	 *
-	 * Allowed values:
-	 * 	'PK' or ShipmentDetails::PACKAGE -> DHL-Package-Type "Package"
-	 * 	'PL' or ShipmentDetails::PALETTE -> DHL-Package-Type "Palette"
-	 *
-	 * @var string $packageType - Package-Type
-	 *
-	 * @deprecated - DHL-API-Version 1 Field
-	 */
-	private $packageType = self::PACKAGE;
-
-	/**
 	 * E-mail address for shipping notification
 	 *
 	 * Note: Optional
@@ -239,6 +221,7 @@ class ShipmentDetails {
 		unset($this->accountNumber);
 		unset($this->customerReference);
 		unset($this->shipmentDate);
+		unset($this->costCentre);
 		unset($this->returnAccountNumber);
 		unset($this->returnReference);
 		unset($this->weight);
@@ -246,7 +229,6 @@ class ShipmentDetails {
 		unset($this->width);
 		unset($this->height);
 		unset($this->service);
-		unset($this->packageType);
 		unset($this->notificationEmail);
 		unset($this->bank);
 	}
@@ -367,6 +349,26 @@ class ShipmentDetails {
 		}
 
 		$this->shipmentDate = $shipmentDate;
+	}
+
+	/**
+	 * get the name of a Cost center
+	 *
+	 * @return string|null - Name of a Cost center or null for none
+	 * @since 3.0
+	 */
+	public function getCostCentre(): ?string {
+		return $this->costCentre;
+	}
+
+	/**
+	 * Set the Name of a Cost center or null for none
+	 *
+	 * @param string|null $costCentre - Name of a Cost center or null for none
+	 * @since 3.0
+	 */
+	public function setCostCentre(?string $costCentre): void {
+		$this->costCentre = $costCentre;
 	}
 
 	/**
@@ -496,40 +498,6 @@ class ShipmentDetails {
 	}
 
 	/**
-	 * Get the Type of the Package
-	 *
-	 * Return values:
-	 * 	'PK' or ShipmentDetails::PACKAGE -> DHL-Package-Type "Package"
-	 * 	'PL' or ShipmentDetails::PALETTE -> DHL-Package-Type "Palette"
-	 *
-	 * @return string - Type of the Package
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function getPackageType() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-
-		return $this->packageType;
-	}
-
-	/**
-	 * Set the Type of the Package
-	 *
-	 * Allowed values:
-	 * 	'PK' or ShipmentDetails::PACKAGE -> DHL-Package-Type "Package"
-	 * 	'PL' or ShipmentDetails::PALETTE -> DHL-Package-Type "Palette"
-	 *
-	 * @param string $packageType - Type of the Package
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function setPackageType($packageType) {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-
-		$this->packageType = $packageType;
-	}
-
-	/**
 	 * Get the Notification E-Mail
 	 *
 	 * @return string|null - Notification E-Mail or null for none
@@ -583,21 +551,8 @@ class ShipmentDetails {
 	/**
 	 * Returns an DHL-Class of this Object for DHL-Shipment Details
 	 *
-	 * @return StdClass - ShipmentDetailsClass
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function getShipmentDetailsClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		return new StdClass;
-	}
-
-	/**
-	 * Returns an DHL-Class of this Object for DHL-Shipment Details
-	 *
 	 * @return StdClass - DHL-ShipmentDetails-Class
+	 * @since 2.0
 	 */
 	public function getShipmentDetailsClass_v2() {
 		$class = new StdClass;
@@ -623,6 +578,50 @@ class ShipmentDetails {
 
 		if($this->getService() !== null)
 			$class->Service = $this->getService()->getServiceClass_v2($this->getProduct());
+
+		if($this->getNotificationEmail() !== null) {
+			$class->Notification = new StdClass;
+			$class->Notification->recipientEmailAddress = $this->getNotificationEmail();
+		}
+
+		if($this->getBank() !== null)
+			$class->BankData = $this->getBank()->getBankClass_v2();
+
+		return $class;
+	}
+
+	/**
+	 * Returns an DHL-Class of this Object for DHL-Shipment Details
+	 *
+	 * @return StdClass - DHL-ShipmentDetails-Class
+	 * @since 3.0
+	 */
+	public function getShipmentDetailsClass_v3() {
+		$class = new StdClass;
+
+		$class->product = $this->getProduct();
+		$class->accountNumber = $this->getAccountNumber();
+		if($this->getCustomerReference() !== null)
+			$class->customerReference = $this->getCustomerReference();
+		$class->shipmentDate = $this->getShipmentDate();
+		if($this->getCostCentre() !== null)
+			$class->costCentre = $this->getCostCentre();
+		if($this->getReturnAccountNumber() !== null)
+			$class->returnShipmentAccountNumber = $this->getReturnAccountNumber();
+		if($this->getReturnReference() !== null)
+			$class->returnShipmentReference = $this->getReturnReference();
+
+		$class->ShipmentItem = new StdClass;
+		$class->ShipmentItem->weightInKG = $this->getWeight();
+		if($this->getLength() !== null)
+			$class->ShipmentItem->lengthInCM = $this->getLength();
+		if($this->getWidth() !== null)
+			$class->ShipmentItem->widthInCM = $this->getWidth();
+		if($this->getHeight() !== null)
+			$class->ShipmentItem->heightInCM = $this->getHeight();
+
+		if($this->getService() !== null)
+			$class->Service = $this->getService()->getServiceClass_v3($this->getProduct());
 
 		if($this->getNotificationEmail() !== null) {
 			$class->Notification = new StdClass;

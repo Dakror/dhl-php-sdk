@@ -4,11 +4,9 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 26.01.2017
  * Time: 18:06
- * Update: 17.07.2018
- * Version: 0.0.3
  *
  * Notes: Contains all stuff for Ident-Check
  */
@@ -24,12 +22,18 @@ class IdentCheck {
 	/**
 	 * Contains the Last-Name of the Person
 	 *
+	 * Min-Len: 0
+	 * Max-Len: 255
+	 *
 	 * @var string $lastName - Last-Name
 	 */
 	private $lastName;
 
 	/**
 	 * Contains the First-Name of the Person
+	 *
+	 * Min-Len: 0
+	 * Max-Len: 255
 	 *
 	 * @var string $firstName - First-Name
 	 */
@@ -40,12 +44,18 @@ class IdentCheck {
 	 *
 	 * Note: ISO-Date-Format (YYYY-MM-DD)
 	 *
+	 * Min-Len: 10
+	 * Max-Len: 10
+	 *
 	 * @var string $birthday - Birthday
 	 */
 	private $birthday;
 
 	/**
 	 * Contains the "minimum age of the person for ident check"
+	 *
+	 * Min-Len: 1
+	 * Max-Len: 3
 	 *
 	 * @var int $minimumAge - "minimum age of the person for ident check"
 	 */
@@ -151,21 +161,8 @@ class IdentCheck {
 	/**
 	 * Get the Ident-DHL-Class
 	 *
-	 * @return stdClass - Ident-DHL-Class
-	 *
-	 * @deprecated - DHL-API-Version 1 Method
-	 */
-	public function getIdentClass_v1() {
-		trigger_error('[DHL-PHP-SDK]: Version 1 Methods are deprecated and will removed soon (Called method ' . __METHOD__ . ')!', E_USER_DEPRECATED);
-		trigger_error('[DHL-PHP-SDK]: Called Version 1 Method: ' . __METHOD__ . ' is incomplete (does nothing)!', E_USER_WARNING);
-
-		return new StdClass;
-	}
-
-	/**
-	 * Get the Ident-DHL-Class
-	 *
 	 * @return StdClass - Ident-DHL-Class
+	 * @since 2.0
 	 */
 	public function getIdentClass_v2() {
 		$class = new StdClass;
@@ -175,5 +172,15 @@ class IdentCheck {
 		$class->minimumAge = $this->getMinimumAge();
 
 		return $class;
+	}
+
+	/**
+	 * Get the Ident-DHL-Class
+	 *
+	 * @return StdClass - Ident-DHL-Class
+	 * @since 3.0
+	 */
+	public function getIdentClass_v3() {
+		return $this->getIdentClass_v2();
 	}
 }

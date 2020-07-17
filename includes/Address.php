@@ -4,14 +4,14 @@ namespace Petschko\DHL;
 
 /**
  * Author: Peter Dragicevic [peter@petschko.org]
- * Authors-Website: http://petschko.org/
+ * Authors-Website: https://petschko.org/
  * Date: 15.09.2016
  * Time: 15:23
- * Update: 16.07.2018
- * Version: 0.0.5
  *
  * Notes: Contains the DHL-Address Class
  */
+
+use stdClass;
 
 /**
  * Class Address
@@ -24,6 +24,7 @@ abstract class Address {
 	 *
 	 * Min-Len: -
 	 * Max-Len: 35
+	 * Max-Len: 50 (since 3.0)
 	 *
 	 * @var string $streetName - Street Name (without number)
 	 */
@@ -34,6 +35,7 @@ abstract class Address {
 	 *
 	 * Min-Len: -
 	 * Max-Len: 5
+	 * Max-Len: 10 (since 3.0)
 	 *
 	 * @var string $streetNumber - Street Number (may with extra stuff like a/b/c/d etc)
 	 */
@@ -43,6 +45,7 @@ abstract class Address {
 	 * Contains other Info about the Address like if its hard to find or where it is exactly located
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -54,6 +57,7 @@ abstract class Address {
 	 * Contains Optional Dispatching Info
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 35
 	 *
@@ -66,6 +70,7 @@ abstract class Address {
 	 *
 	 * Min-Len: -
 	 * Max-Len: 10
+	 * Max-Len: 17 (since 3.0)
 	 *
 	 * @var string $zip - ZIP-Code
 	 */
@@ -76,15 +81,30 @@ abstract class Address {
 	 *
 	 * Min-Len: -
 	 * Max-Len: 35
+	 * Max-Len: 50 (since 3.0)
 	 *
 	 * @var string $location - Location
 	 */
 	private $location = '';
 
 	/**
+	 * Contains the Province Name
+	 *
+	 * Note: Optional
+	 *
+	 * Min-Len: -
+	 * Max-Len: 35
+	 *
+	 * @var string|null $province - Province Name
+	 * @since 3.0
+	 */
+	private $province = null;
+
+	/**
 	 * Contains the Country
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: -
 	 * Max-Len: 30
 	 *
@@ -96,6 +116,7 @@ abstract class Address {
 	 * Contains the country ISO-Code
 	 *
 	 * Note: Optional
+	 *
 	 * Min-Len: 2
 	 * Max-Len: 2
 	 *
@@ -109,6 +130,7 @@ abstract class Address {
 	 * Note: Optional
 	 * Min-Len: -
 	 * Max-Len: 30
+	 * Max-Len: 35 (since 3.0)
 	 *
 	 * @var string|null $state - Name of the State (Geo-Location) | null for none
 	 */
@@ -131,6 +153,7 @@ abstract class Address {
 		unset($this->dispatchingInfo);
 		unset($this->zip);
 		unset($this->location);
+		unset($this->province);
 		unset($this->country);
 		unset($this->countryISOCode);
 		unset($this->state);
@@ -263,6 +286,26 @@ abstract class Address {
 	}
 
 	/**
+	 * Get the Name of the Province
+	 *
+	 * @return string|null - Name of the Province or null if none
+	 * @since 3.0
+	 */
+	public function getProvince(): ?string {
+		return $this->province;
+	}
+
+	/**
+	 * Set the Name of the Province
+	 *
+	 * @param string|null $province - Name of the Province or null for none
+	 * @since 3.0
+	 */
+	public function setProvince(?string $province): void {
+		$this->province = $province;
+	}
+
+	/**
 	 * Get the Country
 	 *
 	 * @return string|null - Country or null for none
@@ -332,7 +375,7 @@ abstract class Address {
 	 * @deprecated - Buggy on some addresses, please separate the number and street by yourself
 	 */
 	public final function setFullStreet($street) {
-		trigger_error('[DHL-PHP-SDK]: Called deprecated method ' . __METHOD__ . ': Buggy on some addresses, please separate the number and street by yourself. This method will removed in the future!', E_USER_DEPRECATED);
+		Deprecated::methodIsDeprecated(__METHOD__, __CLASS__);
 
 		$match = array();
 
@@ -342,5 +385,35 @@ abstract class Address {
 
 		$this->setStreetName($match[1]);
 		$this->setStreetNumber($match[2]);
+	}
+
+	/**
+	 * Returns the Origin Class
+	 *
+	 * @return StdClass - Origin Class
+	 * @since 2.0
+	 */
+	protected function getOriginClass_v2() {
+		$class = new StdClass;
+
+		if($this->getCountry() !== null)
+			$class->country = $this->getCountry();
+
+		$class->countryISOCode = $this->getCountryISOCode();
+
+		if($this->getState() !== null)
+			$class->state = $this->getState();
+
+		return $class;
+	}
+
+	/**
+	 * Returns the Origin Class
+	 *
+	 * @return StdClass - Origin Class
+	 * @since 3.0
+	 */
+	protected function getOriginClass_v3() {
+		return $this->getOriginClass_v2();
 	}
 }
